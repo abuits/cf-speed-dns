@@ -93,7 +93,7 @@ def main():
     # 执行 DNS 更新
     best_ip = ip_addresses[0]
     dns = update_dns_record(dns_records[0], CF_DNS_NAME, ip_address)
-        push_plus_content.append(dns)
+    push_plus_content.append(dns)
 
     # push_plus('\n'.join(push_plus_content))
 
