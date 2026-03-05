@@ -53,7 +53,8 @@ def update_dns_record(record_id, name, cf_ip):
     data = {
         'type': 'A',
         'name': name,
-        'content': cf_ip
+        'content': cf_ip,
+        'ttl': 3600,
     }
 
     response = requests.put(url, headers=headers, json=data)
@@ -96,7 +97,7 @@ def main():
             dns = update_dns_record(dns_records[0], CF_DNS_NAME, ip_address)
         push_plus_content.append(dns)
 
-    push_plus('\n'.join(push_plus_content))
+    # push_plus('\n'.join(push_plus_content))
 
 if __name__ == '__main__':
     main()
