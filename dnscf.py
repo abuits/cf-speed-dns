@@ -88,12 +88,13 @@ def main():
     # 获取最新优选IP
     ip_addresses_str = get_cf_speed_test_ip()
     ip_addresses = ip_addresses_str.split(',')
+    best_ip = ip_addresses[0]
+    # 执行 DNS 更新
     dns_records = get_dns_records(CF_DNS_NAME)
     push_plus_content = []
-    # 执行 DNS 更新
-    best_ip = ip_addresses[0]
-    dns = update_dns_record(dns_records[0], CF_DNS_NAME, best_ip)
-    push_plus_content.append(dns)
+    if dns_records:
+        dns = update_dns_record(dns_records[0], CF_DNS_NAME, best_ip)
+        push_plus_content.append(dns)
 
     # 暂停通知
     # push_plus('\n'.join(push_plus_content))
