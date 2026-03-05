@@ -95,6 +95,7 @@ def main():
     dns = update_dns_record(dns_records[0], CF_DNS_NAME, ip_address)
     push_plus_content.append(dns)
 
+    # 暂停通知
     # push_plus('\n'.join(push_plus_content))
 
 if __name__ == '__main__':
