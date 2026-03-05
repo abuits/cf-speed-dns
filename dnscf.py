@@ -56,7 +56,7 @@ def update_dns_record(record_id, name, cf_ip):
         'name': name,
         'content': cf_ip,
         'ttl': 3600,
-        'comment': now,
+        'comment': now
     }
 
     response = requests.put(url, headers=headers, json=data)
