@@ -92,7 +92,7 @@ def main():
     push_plus_content = []
     # 执行 DNS 更新
     best_ip = ip_addresses[0]
-    dns = update_dns_record(dns_records[0], CF_DNS_NAME, ip_address)
+    dns = update_dns_record(dns_records[0], CF_DNS_NAME, best_ip)
     push_plus_content.append(dns)
 
     # 暂停通知
