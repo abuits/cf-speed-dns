@@ -49,12 +49,14 @@ def get_dns_records(name):
 
 # 更新 DNS 记录
 def update_dns_record(record_id, name, cf_ip):
+    now = time.strftime("cf-speed-dns: %Y/%m/%d %H:%M:%S", time.localtime())
     url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records/{record_id}'
     data = {
         'type': 'A',
         'name': name,
         'content': cf_ip,
         'ttl': 3600,
+        'comment': now,
     }
 
     response = requests.put(url, headers=headers, json=data)
