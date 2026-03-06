@@ -1,8 +1,8 @@
 import requests
 import traceback
-import time
 import os
 import json
+from datetime import datetime, timezone, timedelta
 
 # API 密钥
 CF_API_TOKEN    =   os.environ["CF_API_TOKEN"]
@@ -12,8 +12,7 @@ CF_DNS_NAME     =   os.environ["CF_DNS_NAME"]
 # pushplus_token
 PUSHPLUS_TOKEN  =   os.environ["PUSHPLUS_TOKEN"]
 
-
-
+# headers
 headers = {
     'Authorization': f'Bearer {CF_API_TOKEN}',
     'Content-Type': 'application/json'
@@ -35,43 +34,39 @@ def get_cf_speed_test_ip(timeout=10, max_retries=5):
 
 # 获取 DNS 记录
 def get_dns_records(name):
-    def_info = []
-    url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records'
+    url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records?name={name}'
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         records = response.json()['result']
-        for record in records:
-            if record['name'] == name:
-                def_info.append(record['id'])
-        return def_info
+        return [record['id'] for record in records]
     else:
         print('Error fetching DNS records:', response.text)
+        return []
 
 # 更新 DNS 记录
 def update_dns_record(record_id, name, cf_ip):
-    now = time.strftime("cf-speed-dns: %Y/%m/%d %H:%M:%S", time.localtime())
+    beijing_tz = timezone(timedelta(hours=8))
+    comment_time = datetime.now(beijing_tz).strftime("cf-speed-dns: %Y/%m/%d %H:%M:%S")
+    beijing_time = datetime.now(beijing_tz).strftime("%Y-%m-%d %H:%M:%S")
     url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records/{record_id}'
     data = {
         'type': 'A',
         'name': name,
         'content': cf_ip,
         'ttl': 3600,
-        'comment': now
+        'comment': comment_time
     }
-
+    # 提交
     response = requests.put(url, headers=headers, json=data)
-
+    # 日志
     if response.status_code == 200:
-        print(f"cf_dns_change success: ---- Time: " + str(
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + " ---- ip：" + str(cf_ip))
-        return "ip:" + str(cf_ip) + "解析" + str(name) + "成功"
+        print(f"cf_dns_change success: ---- Time: {beijing_time} ---- ip：{cf_ip}")
+        return f"ip:{cf_ip}解析{name}成功"
     else:
-        traceback.print_exc()
-        print(f"cf_dns_change ERROR: ---- Time: " + str(
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + " ---- MESSAGE: " + str(response))
-        return "ip:" + str(cf_ip) + "解析" + str(name) + "失败"
+        print(f"cf_dns_change ERROR: ---- Time: {beijing_time} ---- MESSAGE: {response}")
+        return f"ip:{cf_ip}解析{name}失败"
 
-# 消息推送
+# 通知推送
 def push_plus(content):
     url = 'http://www.pushplus.plus/send'
     data = {
